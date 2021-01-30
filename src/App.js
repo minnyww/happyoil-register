@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import { lazy, Suspense } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import LoadingIcon from "./components/LoadingIcon";
+
+const RegisterResult = lazy(() => import("./page/RegisterResult"));
+const Register = lazy(() => import("./page/Register"));
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+   return (
+      <div style={{ margin: "1rem" }}>
+         <Router>
+            <Switch>
+               <Suspense fallback={<LoadingIcon />}>
+                  <Route path="/" exact>
+                     <Register />
+                  </Route>
+                  <Route path="/register-result">
+                     <RegisterResult />
+                  </Route>
+                  <Route path="/register">
+                     <Register />
+                  </Route>
+               </Suspense>
+            </Switch>
+         </Router>
+      </div>
+   );
 }
 
 export default App;
