@@ -177,10 +177,10 @@ const Register = () => {
                </Button>
             </Col>
          </Row>
-         <Input
+         {/* <Input
             placeholder="search"
             onChange={(event) => searchByName(event.target.value)}
-         />
+         /> */}
          <BaseTable
             pagination={{
                total: pageSize,
