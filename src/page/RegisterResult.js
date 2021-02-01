@@ -8,6 +8,7 @@ import XLSX from "xlsx";
 import Row from "antd/lib/row";
 import Col from "antd/lib/col";
 import Button from "antd/lib/button";
+import { Input } from "antd";
 const columns = [
    {
       title: "ชื่อ-สกุล",
@@ -46,7 +47,7 @@ const BaseTable = styled(Table)`
 `;
 
 const Register = () => {
-   const [page, setPage] = useState(1);
+   const [, setPage] = useState(1);
    const [registerData, setRegisterData] = useState([]);
    const [isLoading, setIsLoading] = useState(false);
    const [pageSize, setPageSize] = useState(null);
@@ -57,35 +58,30 @@ const Register = () => {
       const unsub = firebaseApp
          .firestore()
          .collection("happyoil-registers")
-         .onSnapshot(async (snapshot) => {
+         .onSnapshot((snapshot) => {
             let sizeOfCollection = snapshot.size;
             setPageSize(sizeOfCollection);
-            const startAt = sizeOfCollection - LIMIT * page + 1;
+
             firebaseApp
                .firestore()
                .collection("happyoil-registers")
-               .orderBy("index")
-               .startAt(startAt)
-               .limit(1)
+               .orderBy("index", "desc")
+               .startAt(sizeOfCollection)
+               .limit(LIMIT)
                .onSnapshot(async (snapshot) => {
                   const registerData = await snapshot.docs.map((item) =>
                      item.data(),
                   );
-                  setRegisterData(registerData.reverse());
+                  setRegisterData(registerData);
                });
             setIsLoading(false);
          });
       return () => {
          unsub();
       };
-   }, [page]);
+   }, []);
 
-   // const [lastId, setLastId] = useState(1);
-
-   // const chunk = (arr, size) =>
-   //    Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-   //       arr.slice(i * size, i * size + size),
-   //    );
+   console.log("registerData : ", registerData);
 
    const createCsv = (data) => {
       let test = XLSX.utils.json_to_sheet(data);
@@ -138,6 +134,34 @@ const Register = () => {
          });
    };
 
+   const searchByName = async (search) => {
+      if (search) {
+         const getRef = await firebaseApp
+            .firestore()
+            .collection("happyoil-registers")
+            .where("keyword", "array-contains", search.toLowerCase())
+            .orderBy("index", "desc")
+            .limit(LIMIT)
+            .get();
+         const getData = await getRef.docs.map((item) => item.data());
+         setRegisterData(getData);
+         setPage(1);
+      } else {
+         firebaseApp
+            .firestore()
+            .collection("happyoil-registers")
+            .orderBy("index", "desc")
+            .startAt(pageSize)
+            .limit(LIMIT)
+            .onSnapshot(async (snapshot) => {
+               const registerData = await snapshot.docs.map((item) =>
+                  item.data(),
+               );
+               setRegisterData(registerData);
+            });
+      }
+   };
+
    return (
       <div>
          <Row>
@@ -153,11 +177,26 @@ const Register = () => {
                </Button>
             </Col>
          </Row>
+         <Input
+            placeholder="search"
+            onChange={(event) => searchByName(event.target.value)}
+         />
          <BaseTable
             pagination={{
                total: pageSize,
                pageSize: LIMIT,
-               onChange: (page) => setPage(page),
+               onChange: async (page) => {
+                  const getRef = await firebaseApp
+                     .firestore()
+                     .collection("happyoil-registers")
+                     .orderBy("index", "desc")
+                     .startAt(pageSize - LIMIT * page + LIMIT)
+                     .limit(LIMIT)
+                     .get();
+                  const getData = await getRef.docs.map((item) => item.data());
+                  setRegisterData(getData);
+                  setPage(page);
+               },
             }}
             size="small"
             loading={{

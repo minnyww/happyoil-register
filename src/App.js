@@ -5,6 +5,7 @@ import LoadingIcon from "./components/LoadingIcon";
 const RegisterResult = lazy(() => import("./page/RegisterResult"));
 const Register = lazy(() => import("./page/Register"));
 
+//sendgridkey = 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
 function App() {
    return (
       <div style={{ margin: "1rem" }}>

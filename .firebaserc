@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "chayen"
+  },
+  "targets": {
+    "chayen": {
+      "hosting": {
+        "test-happy-oil": [
+          "test-happy-oil"
+        ]
+      }
+    }
+  }
+}

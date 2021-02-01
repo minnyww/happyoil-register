@@ -33,11 +33,18 @@ const Register = () => {
             .get();
          let index = size === 0 ? 1 : size.size + 1;
 
+         let currentName = "";
+         const keyword = fullName.split("").map((letter) => {
+            currentName += letter;
+            return currentName;
+         });
+
          firebaseApp
             .firestore()
             .collection("happyoil-registers")
             .add({
                fullName: fullName,
+               keyword: keyword,
                time: Date.now(),
                registerTime: new Date(Date.now()).toLocaleString(),
                email: email,
